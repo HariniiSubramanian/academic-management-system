@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Staff Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f6eefc;
+        }
+
+        /* ===== HEADER ===== */
+        .header {
+            padding: 20px 40px;
+            border-bottom: 1px solid #e6dff3;
+            position: relative;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #5a189a;
+        }
+
+        .logout {
+            position: absolute;
+            right: 40px;
+            top: 25px;
+            background: #c9184a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            display: flex;
+            padding: 20px 40px;
+        }
+
+        /* ===== LEFT MENU ===== */
+        .sidebar {
+            width: 260px;
+            border-right: 1px solid #e6dff3;
+            padding-right: 20px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #f4eefe;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            text-align: left;
+        }
+
+        .menu-btn.active,
+        .menu-btn:hover {
+            background: #5a189a;
+            color: white;
+        }
+
+        /* ===== RIGHT CONTENT ===== */
+        .content {
+            flex: 1;
+            padding-left: 30px;
+        }
+
+        /* ===== TABLE ===== */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #5a189a;
+            color: white;
+            padding: 10px;
+        }
+
+        td {
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+
+        tr:nth-child(even) {
+            background: #f4eefe;
+        }
+
+        /* ===== FORM ===== */
+        input,
+        select,
+        textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        button.submit {
+            background: #5a189a;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- HEADER -->
+    <div class="header">
+        <h1>Welcome {{name}} </h1>
+        <button class="logout" onclick="logoutUser()">Logout</button>
+
+    </div>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- LEFT MENU -->
+        <div class="sidebar">
+            <button class="menu-btn active" onclick="showSection('attendance')">Attendance</button>
+            <button class="menu-btn" onclick="showSection('assign')">Assign TT-Test</button>
+            <button class="menu-btn" onclick="showSection('review1')">Review TT-Test</button>
+
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="content">
+
+            <!-- ATTENDANCE -->
+            <div id="attendance" class="section">
+
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <h2>Attendance</h2>
+                    <button class="submit" onclick="openAddDialog()">+ Add</button>
+                </div>
+
+
+                <!-- Batch Select -->
+                <div style="max-width:220px; margin-bottom:20px;">
+                    <label style="display:block; margin-bottom:6px; font-weight:500;">Batch</label>
+                    <select onchange="location = this.value;">
+                        <option value="/staff?batch=Batch 1" {% if selected_batch=='Batch 1' %}selected{% endif %}>
+                            Batch 1
+                        </option>
+
+                        <option value="/staff?batch=Batch 2" {% if selected_batch=='Batch 2' %}selected{% endif %}>
+                            Batch 2
+                        </option>
+
+                        <option value="/staff?batch=Batch 3" {% if selected_batch=='Batch 3' %}selected{% endif %}>
+                            Batch 3
+                        </option>
+                    </select>
+
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Student ID</th>
+                            <th>Course</th>
+                            <th>Batch</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                        <tr>
+                            <td>{{ s[1] }}</td>
+                            <td>{{ s[2] }}</td>
+                            <td>{{ s[3] }}</td>
+                            <td>{{ s[4] }}</td>
+                            <td>
+                                <a href="/mark_attendance/{{ s[0] }}/Present">
+                                    <button>Present</button>
+                                </a>
+                                <a href="/mark_attendance/{{ s[0] }}/Absent">
+                                    <button>Absent</button>
+                                </a>
+                                <br>
+                                <small>{{ s[5] }}</small>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+
+                <div id="addDialog" style="
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.4);
+justify-content:center;
+align-items:center;
+">
+
+                    <div style="background:white; padding:25px; width:350px; border-radius:12px;">
+                        <h3>Add Student</h3>
+
+                        <form method="POST" action="/add_student">
+                            <label>Name</label>
+                            <input type="text" name="student_name" required>
+
+                            <label>Student ID</label>
+                            <input type="text" name="student_id" required>
+
+                            <label>Course</label>
+                            <input type="text" name="course" required>
+
+                            <label>Batch</label>
+                            <select name="batch">
+                                <option>Batch 1</option>
+                                <option>Batch 2</option>
+                                <option>Batch 3</option>
+                            </select>
+
+                            <div style="text-align:right;">
+                                <button type="button" onclick="closeAddDialog()">Close</button>
+                                <button type="submit" class="submit">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+
+            </div>
+
+
+            <!-- ASSIGN TASK -->
+            <!-- <div id="assign" class="section" style="display:none;">
+            <h2>Assign Task</h2>
+            <input type="text" placeholder="Assignment Title">
+            <textarea placeholder="Task Description"></textarea>
+            <input type="date">
+            <button class="submit">Assign</button>
+        </div> -->
+
+            <div id="assign" class="section" style="display:none;">
+
+                <h2>TT-Test</h2>
+
+                <!-- Batch -->
+
+                <form method="POST" action="/assign_test">
+
+                    <label>Batch</label>
+                    <select name="batch" required>
+                        <option>Batch 1</option>
+                        <option>Batch 2</option>
+                        <option>Batch 3</option>
+                    </select>
+                    <br><br>
+                    <label>Test Title</label>
+                    <input type="text" name="title" required>
+
+                    <label>Test Questions</label>
+                    <textarea name="questions" required></textarea>
+
+                    <label>Date & End Time</label>
+                    <input type="datetime-local" name="end_time" required>
+
+                    <div style="text-align:right;">
+                        <button type="submit" class="submit">Assign</button>
+                    </div>
+
+                </form>
+
+            </div>
+
+            <!-- REVIEW ASSIGNMENT -->
+<div id="review1" class="section" style="display:none;">
+    <h2>Review Assignment</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Student</th>
+                <th>Student ID</th>
+                <th>Batch</th>
+                <th>Test Title</th>
+                <th>Assignment File</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for r in reviews %}
+            <tr>
+                <td>{{ r[0] }}</td>
+                <td>{{ r[1] }}</td>
+                <td>{{ r[2] }}</td>
+                <td>{{ r[3] }}</td>
+
+                <td>
+                    <a href="{{ url_for('static', filename='uploads/' ~ r[4]) }}"
+                       target="_blank">
+                        View File
+                    </a>
+                </td>
+
+                <!-- 🔥 UPDATE BUTTON -->
+                <!-- <td>
+                    <button class="submit"
+                        onclick="openReviewDialog('{{ r[0] }}','{{ r[1] }}','{{ r[7] }}')">
+                        Update
+                    </button>
+                </td> -->
+
+                <td>
+    <button class="submit"
+        onclick="openUpdateDialog(
+            '{{ r[7] }}',
+            '{{ r[0] }}',
+            '{{ r[1] }}',
+            '{{ r[3] }}'
+        )">
+        Update
+    </button>
+</td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+
+
+
+
+        </div>
+    </div>
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+    <script>
+
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(sec => sec.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            if (id === 'attendance') {
+                loadAttendance();
+            }
+        }
+
+        function loadAttendance() {
+            const batch = document.getElementById("batchSelect").value;
+            const body = document.getElementById("attendanceBody");
+            body.innerHTML = "";
+
+            attendanceData[batch].forEach(s => {
+                body.innerHTML += `
+            <tr>
+                <td>${s.name}</td>
+                <td>${s.id}</td>
+                <td>${s.course}</td>
+                <td>
+                    <button onclick="mark(this,'P')">Present</button>
+                    <button onclick="mark(this,'A')">Absent</button>
+                </td>
+            </tr>
+        `;
+            });
+        }
+
+        function mark(btn, type) {
+            const tds = btn.parentElement;
+            tds.querySelectorAll("button").forEach(b => b.style.background = "#eee");
+            btn.style.background = type === 'P' ? "#38b000" : "#d00000";
+            btn.style.color = "white";
+        }
+
+        /* Default load */
+        loadAttendance();
+    </script>
+
+    <!-- update dialog open and close -->
+  <script>
+function openReviewDialog(name, sid, st_id) {
+    document.getElementById("studentName").value = name;
+    document.getElementById("studentid").value = sid;
+    document.getElementById("st_id").value = st_id;
+    document.getElementById("reviewDialog").style.display = "flex";
+}
+
+function closeReviewDialog() {
+    document.getElementById("reviewDialog").style.display = "none";
+}
+</script>
+
+    
+
+    <!-- REVIEW DIALOG -->
+    <div id="reviewDialog" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.4);
+    justify-content:center;
+    align-items:center;
+">
+
+        <div style="
+        background:white;
+        padding:25px;
+        width:350px;
+        border-radius:12px;
+    ">
+            <h3 style="margin-top:0;">Review Assignment</h3>
+
+            <form>
+                <label>Student Name</label>
+                <input type="text" id="studentName" readonly>
+
+                <label>Student ID</label>
+                <input type="text" id="studentid" readonly>
+
+                <label>Marks</label>
+                <input type="number" max="20" placeholder="Enter marks">
+
+                <label>Level</label>
+                <input type="text" id="level" readonly>
+
+
+                <label>Status</label>
+                <select>
+                    <option>Submitted</option>
+                    <option>Pending</option>
+                    <option>Rejected</option>
+                </select>
+
+                <label>Reschedule</label>
+                <input type="text" id="reschedule" readonly>
+
+                <label>Upcoming Test</label>
+                <input type="text" id="upcoming" readonly>
+
+                <label>Review</label>
+                <input type="text" id="review">
+
+                <div style="text-align:right; margin-top:15px;">
+                    <button type="button" onclick="closeReviewDialog()">Close</button>
+                    <button type="submit" class="submit">Save</button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+        function openAddDialog() {
+            document.getElementById("addDialog").style.display = "flex";
+        }
+        function closeAddDialog() {
+            document.getElementById("addDialog").style.display = "none";
+        }
+    </script>
+
+
+
+
+
+
+<div id="updateDialog" style="
+display:none;
+position:fixed;
+top:0; left:0;
+width:100%; height:100%;
+background:rgba(0,0,0,0.4);
+justify-content:center;
+align-items:center;
+">
+
+    <div style="background:white; padding:25px; width:380px; border-radius:12px;">
+        <h3>Update Review</h3>
+
+        <form method="POST" action="/update_review">
+            <input type="hidden" name="st_id" id="st_id">
+
+            <label>Student Name</label>
+            <input type="text" id="student_name" readonly>
+
+            <label>Student ID</label>
+            <input type="text" id="student_id" readonly>
+
+            <label>Test Title</label>
+            <input type="text" id="test_title" readonly>
+
+            <label>Status</label>
+            <select name="status">
+                <option value="Submitted">Submitted</option>
+                <option value="Reviewed">Reviewed</option>
+                <option value="Rejected">Rejected</option>
+            </select>
+
+            <label>Marks</label>
+            <input type="number" name="marks" max="100" required>
+
+            <label>Staff Review</label>
+            <textarea name="review" required></textarea>
+
+            <div style="text-align:right; margin-top:15px;">
+                <button type="button" onclick="closeUpdateDialog()">Close</button>
+                <button type="submit" class="submit">Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function openUpdateDialog(stId, name, sid, title) {
+    document.getElementById("st_id").value = stId;
+    document.getElementById("student_name").value = name;
+    document.getElementById("student_id").value = sid;
+    document.getElementById("test_title").value = title;
+
+    document.getElementById("updateDialog").style.display = "flex";
+}
+
+function closeUpdateDialog() {
+    document.getElementById("updateDialog").style.display = "none";
+}
+</script>
+<script>
+function logoutUser() {
+    window.location.href = "/logout";
+}
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            margin: 0;
+            background: #f6eefc;
+        }
+
+        /* ================= HEADER ================= */
+        .header {
+            position: relative;
+            padding: 25px 40px;
+            text-align: center;
+            border-bottom: 1px solid #e6dff3;
+
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #5a189a;
+        }
+
+        .header p {
+            margin-top: 6px;
+            color: #555;
+        }
+
+        .header-actions {
+            position: absolute;
+            right: 40px;
+            top: 30px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .header-btn {
+            background: #5a189a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        
+        .logout {
+            position: absolute;
+            right: 40px;
+            top: 25px;
+            background: #c9184a;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        /* ================= MAIN LAYOUT ================= */
+        .main-section {
+            display: flex;
+            gap: 30px;
+            padding: 20px 40px 40px;
+            align-items: flex-start;
+        }
+
+        /* ================= LEFT PANEL ================= */
+        .left-panel {
+            width: 320px;
+
+            padding-right: 25px;
+            border-right: 1px solid #e6dff3;
+        }
+
+        .card {
+            background: #f4eefe;
+            padding: 20px;
+            border-radius: 14px;
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: #5a189a;
+        }
+
+        input[type="file"] {
+            margin: 10px 0 15px;
+        }
+
+        .upload-btn {
+            background: #5a189a;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .note {
+            font-size: 12px;
+            color: #555;
+            margin-top: 8px;
+        }
+
+        /* ================= RIGHT PANEL ================= */
+        .right-panel {
+            flex: 1;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        th {
+            background: #5a189a;
+            color: white;
+            padding: 12px;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        tr:nth-child(even) {
+            background: #f4eefe;
+        }
+
+        .submitted {
+            color: green;
+            font-weight: bold;
+        }
+
+        .pending {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ================= HEADER ================= -->
+    <div class="header">
+        <h1>Welcome {{name}} </h1>
+        <p>Here is your weekly test & assignment details</p>
+        <p>Remember, every test is a step toward improvement — and together, we’ll build a smarter, more confident learning journey</p>
+
+        <div class="header-actions">
+<!--             
+            <button class="header-btn logout">Logout</button> -->
+         <button class="logout" onclick="logoutUser()">Logout</button>
+
+
+        </div>
+    </div>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+    <div class="main-section">
+
+   <!-- LEFT PANEL -->
+    <div class="left-panel">
+
+        <h2>Assigned TT‑Tests</h2>
+
+        {% for t in tests %}
+        <div class="card" style="margin-bottom:20px;">
+
+            <h3>{{ t[1] }}</h3>
+            <p><b>End Time:</b> {{ t[3] }}</p>
+            <p><b>Status:</b> {{ t[4] }}</p>
+
+            <button onclick="toggleTest('{{ t[0] }}')">View</button>
+
+            <div id="test{{ t[0] }}" style="display:none; margin-top:15px;">
+
+                <h4>Questions</h4>
+                <p style="white-space:pre-line;">{{ t[2] }}</p>
+
+                <form action="/submit_test/{{ t[0] }}" method="POST" enctype="multipart/form-data">
+                    <input type="file" name="answer_file" required>
+                    <br><br>
+                    <button type="submit" class="upload-btn">Submit Test</button>
+                </form>
+
+            </div>
+
+        </div>
+        {% endfor %}
+
+    </div>
+
+
+        <!-- RIGHT SIDE : TABLE -->
+       <div class="right-panel">
+    <h2>Weekly Test Performance</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Test Title</th>
+                <th>Submitted Date</th>
+                <th>Marks (20)</th>
+                <th>Status</th>
+                <th>Staff Review</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in performance %}
+            <tr>
+                <td>{{ p[0] }}</td>
+
+                <td>
+                    {% if p[1] %}
+                        {{ p[1] }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if p[2] %}
+                        {{ p[2] }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+
+                <td>
+                    {{ p[3] }}
+                </td>
+
+                <td>
+                    {% if p[4] %}
+                        {{ p[4] }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No test data available</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+    </div>
+<script>
+function toggleTest(id){
+    let div = document.getElementById("test"+id);
+    div.style.display = div.style.display === "none" ? "block" : "none";
+}
+</script>
+<script>
+function logoutUser() {
+    window.location.href = "/logout";
+}
+</script>
+
+</body>
+</html>

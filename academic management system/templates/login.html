@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Login | Elysium TT Mastery</title>
+
+
+    <style>
+
+     * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    height: 100vh;
+    background-color: #f4ecfb;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container {
+    background: #f9f3ff;
+    padding: 40px;
+    width: 580px;
+    border-radius: 16px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.login-container h1 {
+    color: #5a189a;
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: black;
+    margin-bottom: 30px;
+    font-weight: 700;
+}
+
+.input-group {
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: black;
+    font-weight: bold;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 6px;
+    border-radius: 8px;
+    border: 1px solid #221f1f;
+    outline: none;
+
+}
+
+.input-group input:focus {
+    border-color: #7b2cbf;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 12px;
+    background-color: #5a189a;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.login-btn:hover {
+    background-color: #7b2cbf;
+}
+
+
+
+
+
+    </style>
+   </head>
+<body>
+
+<div class="login-container">
+    <h1>Login</h1>
+    <p class="subtitle">Welcome back! Please login to continue.</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p style="color:red;">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+
+    <form action="{{ url_for('login') }}" method="post">
+        <div class="input-group">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Enter your name here" required>
+        </div>
+
+        <div class="input-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login</button>
+    </form>
+
+
+</div>
+
+</body>
+</html>
